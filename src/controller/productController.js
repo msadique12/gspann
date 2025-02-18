@@ -1,17 +1,14 @@
-const dummyProducts = Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    name: `Product ${i + 1}`,
-  }));
-  
-  export const getProducts = (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-  
-    const paginatedProducts = dummyProducts.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(dummyProducts.length / limit);
-  
-    res.json({ products: paginatedProducts, totalPages });
-  };
-  
+import { getProductsFromDB } from '../models/productModel.js';
+
+export const getProducts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+
+  try {
+    const products = await getProductsFromDB(page, limit);
+    res.json({ products, totalPages: Math.ceil(50 / limit) }); 
+  } catch (error) {
+    console.error("Fetch Products Error:", error);
+    res.status(500).json({ message: "Failed to fetch products" });
+  }
+};
